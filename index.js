@@ -30,28 +30,19 @@ function detectPackageManager(projectPath = process.cwd()) {
  * @returns {Promise<Object|null>} - Una lista en formato JSON de los paquetes desactualizados o `null` si ocurre un error.
  */
 async function getOutdatedPackages(packageManager) {
-  try {
-    let command;
-    if (packageManager === "npm") {
-      command = ["npm", "outdated", "--json"];
-    } else if (packageManager === "yarn") {
-      command = ["yarn", "outdated", "--json"];
-    } else if (packageManager === "pnpm") {
-      command = ["pnpm", "outdated", "--json"];
-    } else {
-      throw new Error("Administrador de paquetes desconocido o no soportado.");
-    }
-
-    const { stdout } = await execa(command[0], command.slice(1));
-    return JSON.parse(stdout);
-  } catch (error) {
-    // Si el comando no genera salida JSON o hay un error, devolvemos `null`
-    if (error.stdout && error.stdout.trim() === "") {
-      return {};
-    }
-    console.error(`Error al ejecutar el comando: ${error.message}`);
-    return null;
+  let command;
+  if (packageManager === "npm") {
+    command = ["npm", "outdated", "--json"];
+  } else if (packageManager === "yarn") {
+    command = ["yarn", "outdated", "--json"];
+  } else if (packageManager === "pnpm") {
+    command = ["pnpm", "outdated", "--json"];
+  } else {
+    throw new Error("Administrador de paquetes desconocido o no soportado.");
   }
+
+  const { stdout } = await execa(command[0], command.slice(1));
+  return JSON.parse(stdout);
 }
 
 /**
@@ -61,6 +52,7 @@ async function getOutdatedPackages(packageManager) {
 function displayOutdatedPackages(outdatedPackages) {
   if (!outdatedPackages || Object.keys(outdatedPackages).length === 0) {
     console.log("No hay paquetes para actualizar.");
+    process.exit(1);
   } else {
     console.log("Paquetes desactualizados:");
     console.log(JSON.stringify(outdatedPackages, null, 2));
