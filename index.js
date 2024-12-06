@@ -2,6 +2,7 @@
 import fs from "fs";
 import path from "path";
 import { exec } from "child_process";
+import chalk from "chalk"; // Usamos chalk para agregar color
 
 /**
  * Detecta el administrador de paquetes en el proyecto actual.
@@ -64,7 +65,9 @@ async function getOutdatedPackages(packageManager) {
     return outdatedPackages;
   } catch (err) {
     console.error(
-      "Error al ejecutar el comando para obtener paquetes desactualizados:",
+      chalk.red(
+        "Error al ejecutar el comando para obtener paquetes desactualizados:",
+      ),
     );
     console.error(err); // Mostrar el error si ocurre
   }
@@ -76,12 +79,14 @@ async function getOutdatedPackages(packageManager) {
  */
 function displayOutdatedPackages(outdatedPackages) {
   if (!outdatedPackages || Object.keys(outdatedPackages).length === 0) {
-    console.log("No hay paquetes para actualizar.");
+    console.log(chalk.yellow("No hay paquetes para actualizar."));
     process.exit(1);
   } else {
-    console.log("Paquetes desactualizados:");
+    console.log(chalk.blue("Paquetes desactualizados:"));
     for (const [pkg, details] of Object.entries(outdatedPackages)) {
-      console.log(`${pkg} : ${details.current} -> ${details.latest}`);
+      console.log(
+        `${chalk.blue(pkg)} : ${chalk.yellow(details.current)} -> ${chalk.green(details.latest)}`,
+      );
     }
   }
 }
@@ -93,17 +98,21 @@ async function main() {
   const packageManager = detectPackageManager();
   if (packageManager === "unknown") {
     console.error(
-      "No se detectó un administrador de paquetes válido en el proyecto.",
+      chalk.red(
+        "No se detectó un administrador de paquetes válido en el proyecto.",
+      ),
     );
     process.exit(1);
   }
 
-  console.log(`Administrador de paquetes detectado: ${packageManager}`);
+  console.log(
+    chalk.green(`Administrador de paquetes detectado: ${packageManager}`),
+  );
   const outdatedPackages = await getOutdatedPackages(packageManager);
   displayOutdatedPackages(outdatedPackages);
 }
 
 main().catch((error) => {
-  console.error(`Error inesperado: ${error.message}`);
+  console.error(chalk.red(`Error inesperado: ${error.message}`));
   process.exit(1);
 });
