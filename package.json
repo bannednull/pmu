@@ -1,0 +1,24 @@
+{
+  "name": "pmu",
+  "version": "0.1.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {},
+  "bin": {
+    "pmu": "index.js"
+  },
+  "keywords": [
+    "package",
+    "manager",
+    "update",
+    "npm",
+    "yarn",
+    "pnpm"
+  ],
+  "author": "bannednull",
+  "license": "MIT",
+  "description": "Packagege manager update tool",
+  "dependencies": {
+    "execa": "^9.5.1"
+  }
+}
