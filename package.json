@@ -1,5 +1,5 @@
 {
-  "name": "pmu",
+  "name": "@bannednull/pmu",
   "version": "0.1.0",
   "main": "index.js",
   "type": "module",
@@ -18,6 +18,13 @@
   "author": "bannednull",
   "license": "MIT",
   "description": "Packagege manager update tool",
+  "bugs": {
+    "url": "https://github.com/bannednull/pmu/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:bannednull/pmu.git"
+  },
   "dependencies": {
     "execa": "^9.5.1"
   }
