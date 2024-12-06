@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from "fs";
 import path from "path";
-import { execa } from "execa";
+import { exec } from "child_process";
 
 /**
  * Detecta el administrador de paquetes en el proyecto actual.
@@ -25,6 +25,23 @@ function detectPackageManager(projectPath = process.cwd()) {
 }
 
 /**
+ * Ejecuta el comando en forma asincrónica usando exec.
+ * @param {string} command - El comando a ejecutar.
+ * @returns {Promise<string>} - La salida del comando si se ejecuta correctamente.
+ */
+function execAsync(command) {
+  return new Promise(function (resolve, reject) {
+    exec(command, (error, stdout, stderr) => {
+      if (stderr !== "") {
+        reject(stderr);
+      } else {
+        resolve(stdout);
+      }
+    });
+  });
+}
+
+/**
  * Ejecuta el comando para listar paquetes desactualizados.
  * @param {string} packageManager - El administrador de paquetes detectado.
  * @returns {Promise<Object|null>} - Una lista en formato JSON de los paquetes desactualizados o `null` si ocurre un error.
@@ -32,21 +49,29 @@ function detectPackageManager(projectPath = process.cwd()) {
 async function getOutdatedPackages(packageManager) {
   let command;
   if (packageManager === "npm") {
-    command = ["npm", "outdated", "--json"];
+    command = "npm outdated --json";
   } else if (packageManager === "yarn") {
-    command = ["yarn", "outdated", "--json"];
+    command = "yarn outdated --json";
   } else if (packageManager === "pnpm") {
-    command = ["pnpm", "outdated", "--json"];
+    command = "pnpm outdated --json";
   } else {
     throw new Error("Administrador de paquetes desconocido o no soportado.");
   }
 
-  const { stdout } = await execa(command[0], command.slice(1));
-  return JSON.parse(stdout);
+  try {
+    const result = await execAsync(command); // Ejecutar el comando correspondiente según el administrador de paquetes
+    const outdatedPackages = JSON.parse(result); // Parsear la salida JSON
+    return outdatedPackages;
+  } catch (err) {
+    console.error(
+      "Error al ejecutar el comando para obtener paquetes desactualizados:",
+    );
+    console.error(err); // Mostrar el error si ocurre
+  }
 }
 
 /**
- * Verifica si hay paquetes desactualizados y muestra un mensaje adecuado.
+ * Muestra los paquetes desactualizados con colores.
  * @param {Object} outdatedPackages - Resultado de los paquetes desactualizados.
  */
 function displayOutdatedPackages(outdatedPackages) {
@@ -55,7 +80,9 @@ function displayOutdatedPackages(outdatedPackages) {
     process.exit(1);
   } else {
     console.log("Paquetes desactualizados:");
-    console.log(JSON.stringify(outdatedPackages, null, 2));
+    for (const [pkg, details] of Object.entries(outdatedPackages)) {
+      console.log(`${pkg} : ${details.current} -> ${details.latest}`);
+    }
   }
 }
 

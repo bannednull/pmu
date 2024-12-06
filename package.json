@@ -1,6 +1,6 @@
 {
   "name": "@bannednull/pmu",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "main": "index.js",
   "type": "module",
   "scripts": {},
@@ -24,8 +24,5 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:bannednull/pmu.git"
-  },
-  "dependencies": {
-    "execa": "^9.5.1"
   }
 }
