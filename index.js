@@ -80,13 +80,49 @@ async function getOutdatedPackages(packageManager) {
 function displayOutdatedPackages(outdatedPackages) {
   if (!outdatedPackages || Object.keys(outdatedPackages).length === 0) {
     console.log(chalk.yellow("No hay paquetes para actualizar."));
-    process.exit(1);
+    process.exit(0);
   } else {
     console.log(chalk.blue("Paquetes desactualizados:"));
     for (const [pkg, details] of Object.entries(outdatedPackages)) {
       console.log(
         `${chalk.blue(pkg)} : ${chalk.yellow(details.current)} -> ${chalk.green(details.latest)}`,
       );
+    }
+  }
+}
+
+/**
+ * Actualiza los paquetes desactualizados.
+ * @param {string} packageManager - El administrador de paquetes.
+ * @param {Object} outdatedPackages - Los paquetes desactualizados.
+ */
+async function updatePackages(packageManager, outdatedPackages) {
+  if (!outdatedPackages || Object.keys(outdatedPackages).length === 0) {
+    console.log(chalk.yellow("No hay paquetes para actualizar."));
+    return;
+  }
+
+  console.log(chalk.green("Actualizando paquetes..."));
+  for (const pkg of Object.keys(outdatedPackages)) {
+    try {
+      let updateCommand;
+      if (packageManager === "npm") {
+        updateCommand = `npm install ${pkg}@latest`;
+      } else if (packageManager === "yarn") {
+        updateCommand = `yarn add ${pkg}@latest`;
+      } else if (packageManager === "pnpm") {
+        updateCommand = `pnpm add ${pkg}@latest`;
+      } else {
+        throw new Error(
+          "Administrador de paquetes desconocido o no soportado.",
+        );
+      }
+
+      console.log(chalk.blue(`Ejecutando: ${updateCommand}`));
+      const result = await execAsync(updateCommand);
+      console.log(chalk.green(`Paquete actualizado: ${pkg}`));
+    } catch (err) {
+      console.error(chalk.red(`Error actualizando ${pkg}: ${err}`));
     }
   }
 }
@@ -108,8 +144,17 @@ async function main() {
   console.log(
     chalk.green(`Administrador de paquetes detectado: ${packageManager}`),
   );
+
+  const args = process.argv.slice(2);
+  const shouldUpdate = args.includes("--update");
+
   const outdatedPackages = await getOutdatedPackages(packageManager);
-  displayOutdatedPackages(outdatedPackages);
+
+  if (shouldUpdate) {
+    await updatePackages(packageManager, outdatedPackages);
+  } else {
+    displayOutdatedPackages(outdatedPackages);
+  }
 }
 
 main().catch((error) => {
