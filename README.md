@@ -1,6 +1,7 @@
 # PMU CLI
+![PMU](./banner.png)
 
-A command line interface for managing outdated packages in your project.
+<p style="text-align: center;">A command line interface for managing outdated packages in your project.</p>
 
 ## Features
 * Automatically detects the package manager in use (npm, yarn, or pnpm).
