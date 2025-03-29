@@ -14,6 +14,7 @@ function detectPackageManager(projectPath = process.cwd()) {
     npm: "package-lock.json",
     yarn: "yarn.lock",
     pnpm: "pnpm-lock.yaml",
+    bun: "bun.lock",
   };
 
   for (const [manager, lockFile] of Object.entries(lockFiles)) {
@@ -55,6 +56,8 @@ async function getOutdatedPackages(packageManager) {
     command = "yarn outdated --json";
   } else if (packageManager === "pnpm") {
     command = "pnpm outdated --json";
+  } else if (packageManager === "bun") {
+    command = "bun outdated --json";
   } else {
     throw new Error("Administrador de paquetes desconocido o no soportado.");
   }
@@ -112,6 +115,8 @@ async function updatePackages(packageManager, outdatedPackages) {
         updateCommand = `yarn add ${pkg}@latest`;
       } else if (packageManager === "pnpm") {
         updateCommand = `pnpm add ${pkg}@latest`;
+      } else if (packageManager === "bun") {
+        updateCommand = `bun add ${pkg}@latest`;
       } else {
         throw new Error(
           "Administrador de paquetes desconocido o no soportado.",
